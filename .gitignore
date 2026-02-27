@@ -1,0 +1,24 @@
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment local overrides
+.env.local
+.env.*.local
+
+# Frontend
+MesaPayApp/node_modules/
+MesaPayApp/.next/
+
+# Backend Python
+MesaPayClient/__pycache__/
+MesaPayClient/.pytest_cache/
+MesaPayClient/.venv/
+MesaPayClient/*.pyc
+
+# Temporary files
+/tmp/
