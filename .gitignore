@@ -7,18 +7,34 @@ yarn-debug.log*
 yarn-error.log*
 
 # Environment local overrides
+.env
 .env.local
 .env.*.local
+.env.dev
+.env.prod
 
 # Frontend
 MesaPayApp/node_modules/
 MesaPayApp/.next/
+MesaPayApp/.turbo/
+MesaPayApp/.vercel/
 
 # Backend Python
+**/__pycache__/
 MesaPayClient/__pycache__/
 MesaPayClient/.pytest_cache/
 MesaPayClient/.venv/
 MesaPayClient/*.pyc
+.mypy_cache/
+.ruff_cache/
 
 # Temporary files
 /tmp/
+
+# Editor settings
+.idea/
+.vscode/
+
+# Local databases
+*.sqlite
+*.sqlite3
