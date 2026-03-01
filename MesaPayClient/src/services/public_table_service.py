@@ -292,6 +292,8 @@ def checkout_shared_bill_items(
     sanitized_card_number = "".join(character for character in card_number if character.isdigit())
     if len(sanitized_card_number) < 12:
         raise ValueError("Numero de tarjeta invalido")
+    if not _passes_luhn(sanitized_card_number):
+        raise ValueError("Numero de tarjeta invalido")
     if sanitized_card_number.endswith("0002"):
         raise ValueError("Pago rechazado por el banco")
     if not line_item_ids:
@@ -329,6 +331,7 @@ def checkout_shared_bill_items(
                     SessionLineItem.status == "unpaid",
                 )
                 .order_by(SessionLineItem.id.asc())
+                .with_for_update()
             )
             .scalars()
             .all()
@@ -457,3 +460,19 @@ def _detect_card_brand(card_number: str) -> str:
     if card_number.startswith("34") or card_number.startswith("37"):
         return "amex"
     return "otra"
+
+
+def _passes_luhn(card_number: str) -> bool:
+    total = 0
+    should_double = False
+    for digit in reversed(card_number):
+        if not digit.isdigit():
+            return False
+        value = int(digit)
+        if should_double:
+            value *= 2
+            if value > 9:
+                value -= 9
+        total += value
+        should_double = not should_double
+    return total % 10 == 0
