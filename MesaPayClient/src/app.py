@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.routes.api import api_router
 from src.routes.health import health_router
+from src.routes.public import public_router
 
 
 def create_app() -> FastAPI:
@@ -18,4 +19,5 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router)
     app.include_router(api_router, prefix="/api")
+    app.include_router(public_router, prefix="/api")
     return app

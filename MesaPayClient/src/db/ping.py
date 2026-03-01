@@ -1,14 +1,8 @@
-import os
+from sqlalchemy import text
 
-import psycopg
+from src.db.session import engine
 
 
 def ping_database() -> None:
-    database_url = os.getenv("DATABASE_URL")
-    if not database_url:
-        raise RuntimeError("DATABASE_URL is required")
-
-    with psycopg.connect(database_url) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1;")
-            cursor.fetchone()
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))

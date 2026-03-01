@@ -23,4 +23,4 @@ COPY . .
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "uvicorn src.server:app --host 0.0.0.0 --port ${BACKEND_PORT:-3001}"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn src.server:app --host 0.0.0.0 --port ${BACKEND_PORT:-3001}"]
