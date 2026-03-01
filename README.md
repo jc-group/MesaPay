@@ -1,6 +1,14 @@
-# MesaPay Monorepo
+# MesaPay
 
-Estructura base full-stack para MesaPay con frontend en Next.js + Tailwind CSS, backend en FastAPI y base de datos PostgreSQL, todo orquestado con Docker Compose.
+MesaPay es una experiencia mobile-first para restaurantes: menu por QR, cuenta compartida, pagos parciales y PWA offline-ready. Este repo es un monorepo full-stack con frontend en Next.js, backend en FastAPI y PostgreSQL, todo orquestado con Docker Compose.
+
+## Highlights
+
+- Menu por QR y mesa virtual colaborativa
+- Cuenta compartida con pagos parciales
+- PWA con modo offline y prompt de instalacion
+- Backend con FastAPI + SQLAlchemy + Alembic
+- Entorno completo con Docker Compose
 
 ## Estructura
 
@@ -20,6 +28,8 @@ Estructura base full-stack para MesaPay con frontend en Next.js + Tailwind CSS, 
 ## Requisitos
 
 - Docker Desktop (o Docker Engine + Compose v2)
+- Node.js 20+ (solo si corres el frontend local fuera de Docker)
+- Python 3.12+ (solo si corres el backend local fuera de Docker)
 
 ## Variables de entorno
 
@@ -39,7 +49,7 @@ Variables minimas configuradas:
 - `FRONTEND_PORT`
 - `NEXT_PUBLIC_API_BASE_URL`
 
-## Levantar entorno de desarrollo
+## Quickstart (dev)
 
 ```bash
 docker compose -f docker-compose.dev.yml up --build
@@ -57,9 +67,15 @@ Validaciones rapidas:
 - Version API: `http://localhost:3001/api/v1/version`
 - Ping DB: `http://localhost:3001/api/v1/db/ping`
 - Menu por QR: `http://localhost:3001/api/v1/public/tables/mesa-12-demo/menu`
-- UI principal: `http://localhost:3000` (muestra estado del backend)
+- UI principal: `http://localhost:3000`
 
-## Levantar entorno de produccion
+Smoke test local:
+
+```bash
+./smoke-dev.sh
+```
+
+## Produccion (local)
 
 ```bash
 docker compose -f docker-compose.prod.yml up --build -d
@@ -71,21 +87,21 @@ Para detener:
 docker compose -f docker-compose.prod.yml down
 ```
 
-## Scripts por proyecto
+## Frontend (MesaPayApp)
 
-### MesaPayApp
+Scripts:
 
-- `npm run dev`: Next.js en modo desarrollo con hot reload
+- `npm run dev`: Next.js con hot reload
 - `npm run build`: build de produccion
 - `npm run start`: servidor Next.js de produccion
 - `npm run prod`: build + start
 
-PWA mobile-first:
+PWA:
 
 - Manifest: `MesaPayApp/src/app/manifest.ts`
 - Service Worker: `MesaPayApp/public/sw.js`
 - Offline page: `MesaPayApp/src/app/offline/page.tsx`
-- Iconos: `MesaPayApp/public/icons/icon-192.png` y `MesaPayApp/public/icons/icon-512.png`
+- Iconos: `MesaPayApp/public/icons/icon-192.png`, `MesaPayApp/public/icons/icon-512.png`
 - Prompt de instalacion: `MesaPayApp/src/components/pwa-install-prompt.tsx`
 
 Estrategia de cache PWA:
@@ -94,24 +110,22 @@ Estrategia de cache PWA:
 - API publica: network-first con cache de respaldo
 - Assets estaticos: stale-while-revalidate
 
-### MesaPayClient
+## Backend (MesaPayClient)
 
-- Desarrollo (hot reload): `uvicorn src.server:app --host 0.0.0.0 --port 3001 --reload`
+Scripts:
+
+- Desarrollo: `uvicorn src.server:app --host 0.0.0.0 --port 3001 --reload`
 - Produccion: `uvicorn src.server:app --host 0.0.0.0 --port 3001`
 - Migraciones: `alembic upgrade head`
-- Nueva migracion (code-first): `alembic revision --autogenerate -m "tu_mensaje"`
+- Nueva migracion: `alembic revision --autogenerate -m "tu_mensaje"`
 
 Endpoints publicos clave:
 
 - `GET /api/v1/public/tables/{qr_token}/menu`
 - `POST /api/v1/public/tables/{qr_token}/join`
-- `GET /api/v1/public/tables/{qr_token}/bill` (cuenta compartida)
-- `POST /api/v1/public/tables/{qr_token}/items` (agregar articulos a cuenta compartida)
-- `POST /api/v1/public/tables/{qr_token}/checkout` (pagar seleccion propia o de otros)
-
-Dependencias backend:
-
-- `pip install -r requirements.txt`
+- `GET /api/v1/public/tables/{qr_token}/bill`
+- `POST /api/v1/public/tables/{qr_token}/items`
+- `POST /api/v1/public/tables/{qr_token}/checkout`
 
 ## Notas
 
