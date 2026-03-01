@@ -126,6 +126,7 @@ Endpoints publicos clave:
 - `GET /api/v1/public/tables/{qr_token}/bill`
 - `POST /api/v1/public/tables/{qr_token}/items`
 - `POST /api/v1/public/tables/{qr_token}/checkout`
+- `POST /api/v1/public/tables/{qr_token}/refund`
 
 ## Notas
 

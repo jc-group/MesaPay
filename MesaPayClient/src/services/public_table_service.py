@@ -428,6 +428,73 @@ def checkout_shared_bill_items(
     }
 
 
+def refund_shared_bill_order(qr_token: str, order_id: int) -> dict:
+    if order_id <= 0:
+        raise ValueError("Orden invalida")
+
+    with SessionLocal() as db_session:
+        table, open_session = _get_table_and_open_session(db_session, qr_token)
+        if table is None:
+            return {}
+
+        order = (
+            db_session.execute(
+                select(Order)
+                .where(Order.id == order_id, Order.session_id == open_session.id)
+                .with_for_update()
+                .limit(1)
+            )
+            .scalars()
+            .first()
+        )
+
+        if order is None:
+            raise ValueError("Orden no encontrada")
+
+        if order.status == "refunded":
+            raise ValueError("La orden ya fue reembolsada")
+
+        paid_lines = (
+            db_session.execute(
+                select(SessionLineItem)
+                .where(
+                    SessionLineItem.paid_order_id == order.id,
+                    SessionLineItem.session_id == open_session.id,
+                )
+                .with_for_update()
+            )
+            .scalars()
+            .all()
+        )
+
+        for line in paid_lines:
+            line.status = "unpaid"
+            line.paid_order_id = None
+
+        payments = (
+            db_session.execute(
+                select(Payment).where(Payment.order_id == order.id).with_for_update()
+            )
+            .scalars()
+            .all()
+        )
+
+        for payment in payments:
+            payment.status = "refunded"
+
+        order.status = "refunded"
+        db_session.commit()
+
+    return {
+        "message": "Orden reembolsada. Cuenta actualizada.",
+        "order": {
+            "id": order.id,
+            "status": order.status,
+        },
+        "refundedLineItems": [line.id for line in paid_lines],
+    }
+
+
 def _get_table_and_open_session(db_session, qr_token: str) -> tuple[Table | None, Session | None]:
     table = db_session.execute(select(Table).where(Table.qr_token == qr_token).limit(1)).scalar_one_or_none()
     if table is None:

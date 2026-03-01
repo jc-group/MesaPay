@@ -10,6 +10,7 @@ from src.services.public_table_service import (
     get_shared_bill_by_qr,
     get_table_menu_by_qr,
     join_table_virtual_session,
+    refund_shared_bill_order,
 )
 
 public_router = APIRouter()
@@ -45,6 +46,10 @@ class CheckoutBody(BaseModel):
 class AddBillItemsBody(BaseModel):
     memberId: int | None = None
     items: list[CheckoutItemBody]
+
+
+class RefundBody(BaseModel):
+    orderId: int
 
 
 @public_router.get("/v1/public/tables/{qr_token}/menu")
@@ -104,6 +109,19 @@ def checkout_table(qr_token: str, payload: CheckoutBody):
             card_holder_name=payload.card.holderName,
             card_number=payload.card.number,
         )
+    except ValueError as error:
+        return JSONResponse(status_code=400, content={"message": str(error)})
+
+    if not result:
+        return JSONResponse(status_code=404, content={"message": "No encontramos la mesa solicitada."})
+
+    return result
+
+
+@public_router.post("/v1/public/tables/{qr_token}/refund")
+def refund_table_order(qr_token: str, payload: RefundBody):
+    try:
+        result = refund_shared_bill_order(qr_token=qr_token, order_id=payload.orderId)
     except ValueError as error:
         return JSONResponse(status_code=400, content={"message": str(error)})
 
