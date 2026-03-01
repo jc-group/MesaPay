@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MesaPay icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2e6d8"/>
+      <stop offset="100%" stop-color="#e9d3bb"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <circle cx="256" cy="178" r="74" fill="#0f6a62"/>
+  <path d="M116 304c22-44 64-66 140-66s118 22 140 66" fill="none" stroke="#0f6a62" stroke-width="30" stroke-linecap="round"/>
+  <path d="M166 370h180" stroke="#c96b22" stroke-width="28" stroke-linecap="round"/>
+</svg>

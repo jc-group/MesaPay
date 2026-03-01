@@ -3,6 +3,17 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --ink-950: #1b1714;
+    --ink-700: #4b3f36;
+    --paper: #f8f1e7;
+    --paper-soft: #f2e6d8;
+    --accent-amber: #c96b22;
+    --accent-jade: #0f6a62;
+    --accent-red: #af2d2d;
+    --line: rgba(62, 49, 40, 0.18);
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -10,6 +21,107 @@
   body {
     margin: 0;
     min-height: 100vh;
-    font-family: "Nunito", "Segoe UI", sans-serif;
+    font-family: var(--font-body), sans-serif;
+    color: var(--ink-950);
+    background:
+      radial-gradient(circle at 12% 16%, rgba(201, 107, 34, 0.28), transparent 38%),
+      radial-gradient(circle at 90% 9%, rgba(15, 106, 98, 0.26), transparent 34%),
+      linear-gradient(150deg, #efe2d0 0%, #f8f1e7 38%, #f0dcc6 100%);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display), serif;
+    letter-spacing: 0.01em;
+  }
+}
+
+@layer components {
+  .ambient-shell {
+    @apply relative overflow-hidden;
+  }
+
+  .ambient-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(27, 23, 20, 0.07) 0.7px, transparent 0.7px);
+    background-size: 4px 4px;
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  .glass-panel {
+    background: linear-gradient(155deg, rgba(248, 241, 231, 0.86), rgba(242, 230, 216, 0.82));
+    border: 1px solid var(--line);
+    box-shadow:
+      0 22px 38px -18px rgba(27, 23, 20, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+  }
+
+  .section-label {
+    @apply text-xs uppercase tracking-[0.18em];
+    color: var(--ink-700);
+  }
+
+  .pulse-dot {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 9999px;
+    display: inline-block;
+    margin-right: 0.5rem;
+    background: var(--accent-jade);
+    box-shadow: 0 0 0 0 rgba(15, 106, 98, 0.6);
+    animation: pulse-ring 1.8s infinite;
+  }
+
+  .raise-hover {
+    transition: transform 240ms ease, box-shadow 240ms ease;
+  }
+
+  .raise-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px -18px rgba(27, 23, 20, 0.5);
+  }
+}
+
+@layer utilities {
+  .fade-in-up {
+    animation: fade-up 620ms ease both;
+  }
+
+  .fade-in-up-delay {
+    animation: fade-up 620ms ease both;
+    animation-delay: 160ms;
+  }
+
+  .fade-in-up-delay-2 {
+    animation: fade-up 620ms ease both;
+    animation-delay: 300ms;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(15, 106, 98, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(15, 106, 98, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(15, 106, 98, 0);
   }
 }
