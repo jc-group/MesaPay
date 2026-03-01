@@ -1,55 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getBackendHealth } from "@/lib/api";
-
-type HealthState =
-  | { status: "loading" }
-  | { status: "success"; service: string }
-  | { status: "error"; message: string };
+import { useRouter } from "next/navigation";
+import {
+  HomeAccessForm,
+  HomeAccessInput,
+  HomeAccessRoot,
+  HomeAccessSubmit
+} from "@/components/home-access";
+import { HealthStatusCard, HealthStatusMessage, HealthStatusRoot } from "@/components/health-status";
 
 export default function HomePage() {
-  const [healthState, setHealthState] = useState<HealthState>({
-    status: "loading"
-  });
-
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const data = await getBackendHealth();
-        setHealthState({ status: "success", service: data.service });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Error desconocido";
-        setHealthState({ status: "error", message });
-      }
-    };
-
-    checkHealth();
-  }, []);
+  const router = useRouter();
+  const onGoToTable = (token: string) => {
+    router.push(`/mesa/${encodeURIComponent(token)}`);
+  };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-6 text-slate-900">
-      <section className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-2xl place-items-center">
-        <div className="w-full rounded-2xl bg-white p-7 shadow-2xl shadow-slate-500/20 md:p-10">
-          <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl">MesaPay</h1>
-          <p className="mt-2 text-lg text-slate-600">
+    <main className="ambient-shell min-h-screen px-4 pb-6 pt-7 md:px-8 md:py-10">
+      <section className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-5xl items-start gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div className="fade-in-up">
+          <p className="section-label">Experiencia de mesa inteligente</p>
+          <h1 className="mt-3 text-[2.7rem] leading-[0.98] text-[var(--ink-950)] md:text-[4.5rem]">
+            MesaPay
+          </h1>
+          <p className="mt-4 max-w-lg text-lg text-[var(--ink-700)] md:text-xl">
             Divide la cuenta. Paga desde tu celular.
           </p>
-
-          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-5">
-            <h2 className="text-base font-semibold text-slate-800">Estado del backend</h2>
-          {healthState.status === "loading" && (
-            <p className="mt-2 font-bold text-slate-800">Validando conexion...</p>
-          )}
-          {healthState.status === "success" && (
-            <p className="mt-2 font-bold text-teal-700">
-              Backend conectado ({healthState.service})
-            </p>
-          )}
-          {healthState.status === "error" && (
-            <p className="mt-2 font-bold text-red-700">Error: {healthState.message}</p>
-          )}
+          <p className="mt-4 max-w-lg text-sm text-[var(--ink-700)]/90">
+            Escanea el QR, entra a la mesa virtual y empieza a pedir sin esperar al mesero.
+          </p>
         </div>
+
+        <div className="glass-panel fade-in-up-delay rounded-3xl p-5 md:p-8">
+          <p className="section-label">Acceso rapido</p>
+
+          <HomeAccessRoot defaultToken="mesa-12-demo" onSubmit={onGoToTable}>
+            <HomeAccessForm>
+              <HomeAccessInput />
+              <HomeAccessSubmit />
+            </HomeAccessForm>
+          </HomeAccessRoot>
+
+          <HealthStatusRoot>
+            <HealthStatusCard>
+              <HealthStatusMessage />
+            </HealthStatusCard>
+          </HealthStatusRoot>
         </div>
       </section>
     </main>
