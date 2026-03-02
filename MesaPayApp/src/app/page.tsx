@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   HomeAccessForm,
   HomeAccessInput,
@@ -8,9 +9,11 @@ import {
   HomeAccessSubmit
 } from "@/components/home-access";
 import { HealthStatusCard, HealthStatusMessage, HealthStatusRoot } from "@/components/health-status";
+import { useAuth } from "@/components/auth-provider";
 
 export default function HomePage() {
   const router = useRouter();
+  const { user, isLoading } = useAuth();
   const onGoToTable = (token: string) => {
     router.push(`/mesa/${encodeURIComponent(token)}`);
   };
@@ -33,6 +36,33 @@ export default function HomePage() {
 
         <div className="glass-panel fade-in-up-delay rounded-3xl p-5 md:p-8">
           <p className="section-label">Acceso rapido</p>
+
+          <div className="mt-3 rounded-2xl border border-[var(--line)] bg-white/80 p-4">
+            <p className="text-sm font-semibold text-[var(--ink-950)]">Cuenta MesaPay</p>
+            {isLoading ? (
+              <p className="mt-2 text-sm text-[var(--ink-700)]">Verificando sesion…</p>
+            ) : user ? (
+              <div className="mt-2 flex items-center justify-between gap-2 text-sm text-[var(--ink-700)]">
+                <span className="truncate">{user.email ?? user.id}</span>
+                <Link
+                  className="font-semibold text-[var(--accent-jade)] hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-jade)] focus-visible:ring-offset-2"
+                  href="/login"
+                >
+                  Gestionar
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-2 flex items-center justify-between gap-2 text-sm text-[var(--ink-700)]">
+                <span>Inicia sesion para guardar favoritos.</span>
+                <Link
+                  className="font-semibold text-[var(--accent-jade)] hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-jade)] focus-visible:ring-offset-2"
+                  href="/login"
+                >
+                  Iniciar sesion
+                </Link>
+              </div>
+            )}
+          </div>
 
           <HomeAccessRoot defaultToken="mesa-12-demo" onSubmit={onGoToTable}>
             <HomeAccessForm>

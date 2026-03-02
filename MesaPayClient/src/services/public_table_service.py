@@ -495,7 +495,33 @@ def refund_shared_bill_order(qr_token: str, order_id: int) -> dict:
     }
 
 
-def _get_table_and_open_session(db_session, qr_token: str) -> tuple[Table | None, Session | None]:
+def close_table_session(qr_token: str) -> dict:
+    with SessionLocal() as db_session:
+        table, open_session = _get_table_and_open_session(db_session, qr_token, create_if_missing=False)
+        if table is None:
+            return {}
+
+        if open_session is None:
+            raise ValueError("No hay una sesion abierta")
+
+        open_session.status = "closed"
+        db_session.commit()
+
+    return {
+        "message": "Sesion cerrada. Se abrira una nueva al siguiente acceso.",
+        "session": {
+            "id": open_session.id,
+            "status": open_session.status,
+            "tableNumber": table.table_number,
+        },
+    }
+
+
+def _get_table_and_open_session(
+    db_session,
+    qr_token: str,
+    create_if_missing: bool = True,
+) -> tuple[Table | None, Session | None]:
     table = db_session.execute(select(Table).where(Table.qr_token == qr_token).limit(1)).scalar_one_or_none()
     if table is None:
         return None, None
@@ -511,7 +537,7 @@ def _get_table_and_open_session(db_session, qr_token: str) -> tuple[Table | None
         .first()
     )
 
-    if open_session is None:
+    if open_session is None and create_if_missing:
         open_session = Session(table_id=table.id, status="open")
         db_session.add(open_session)
         db_session.flush()

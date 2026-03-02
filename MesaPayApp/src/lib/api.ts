@@ -126,6 +126,24 @@ export type CheckoutSharedBillResponse = {
   };
 };
 
+export type RefundSharedBillResponse = {
+  message: string;
+  order: {
+    id: number;
+    status: string;
+  };
+  refundedLineItems: number[];
+};
+
+export type CloseTableResponse = {
+  message: string;
+  session: {
+    id: number;
+    status: string;
+    tableNumber: string;
+  };
+};
+
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:3001";
 
 export async function getBackendHealth(): Promise<HealthResponse> {
@@ -228,4 +246,41 @@ export async function checkoutSharedBill(
   }
 
   return (await response.json()) as CheckoutSharedBillResponse;
+}
+
+export async function refundSharedBill(
+  qrToken: string,
+  orderId: number,
+  accessToken?: string
+): Promise<RefundSharedBillResponse> {
+  const response = await fetch(`${apiBaseUrl}/api/v1/public/tables/${qrToken}/refund`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+    },
+    body: JSON.stringify({ orderId })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Refund shared bill failed: ${response.status}`);
+  }
+
+  return (await response.json()) as RefundSharedBillResponse;
+}
+
+export async function closeTableSession(qrToken: string, accessToken?: string): Promise<CloseTableResponse> {
+  const response = await fetch(`${apiBaseUrl}/api/v1/public/tables/${qrToken}/close`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Close table failed: ${response.status}`);
+  }
+
+  return (await response.json()) as CloseTableResponse;
 }

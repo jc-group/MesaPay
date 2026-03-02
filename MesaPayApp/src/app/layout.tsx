@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Cabin, Prata } from "next/font/google";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
+import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
 
 const PwaInstallPrompt = dynamic(
@@ -52,7 +53,7 @@ export default function RootLayout({
       <body>
         <ServiceWorkerRegister />
         <PwaInstallPrompt />
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

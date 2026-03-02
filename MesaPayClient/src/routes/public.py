@@ -1,17 +1,19 @@
 from typing import TypedDict
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from src.services.public_table_service import (
     add_items_to_shared_bill,
     checkout_shared_bill_items,
+    close_table_session,
     get_shared_bill_by_qr,
     get_table_menu_by_qr,
     join_table_virtual_session,
     refund_shared_bill_order,
 )
+from src.auth.deps import require_admin_user
 
 public_router = APIRouter()
 
@@ -50,6 +52,8 @@ class AddBillItemsBody(BaseModel):
 
 class RefundBody(BaseModel):
     orderId: int
+
+
 
 
 @public_router.get("/v1/public/tables/{qr_token}/menu")
@@ -119,9 +123,22 @@ def checkout_table(qr_token: str, payload: CheckoutBody):
 
 
 @public_router.post("/v1/public/tables/{qr_token}/refund")
-def refund_table_order(qr_token: str, payload: RefundBody):
+def refund_table_order(qr_token: str, payload: RefundBody, _: dict = Depends(require_admin_user)):
     try:
         result = refund_shared_bill_order(qr_token=qr_token, order_id=payload.orderId)
+    except ValueError as error:
+        return JSONResponse(status_code=400, content={"message": str(error)})
+
+    if not result:
+        return JSONResponse(status_code=404, content={"message": "No encontramos la mesa solicitada."})
+
+    return result
+
+
+@public_router.post("/v1/public/tables/{qr_token}/close")
+def close_table(qr_token: str, _: dict = Depends(require_admin_user)):
+    try:
+        result = close_table_session(qr_token=qr_token)
     except ValueError as error:
         return JSONResponse(status_code=400, content={"message": str(error)})
 

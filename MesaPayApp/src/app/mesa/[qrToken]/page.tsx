@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useTransition } from "react";
-import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import useSWR from "swr";
 
 import { getSharedBill, getTableMenu, type SharedBillResponse, type TableMenuResponse } from "@/lib/api";
@@ -12,6 +13,7 @@ import {
 } from "@/components/menu-selection";
 import { SharedBillItems, SharedBillRoot, SharedBillSelectMine, SharedBillSummary } from "@/components/shared-bill";
 import { CheckoutCard, CheckoutFields, CheckoutRoot, CheckoutStatus, CheckoutSubmit } from "@/components/checkout";
+import { TableAdmin } from "@/components/table-admin";
 import {
   TableGuestAction,
   TableGuestCard,
@@ -28,7 +30,6 @@ function currency(value: number) {
 
 export default function TableByQrPage() {
   const params = useParams<{ qrToken: string }>();
-  const router = useRouter();
   const qrToken = useMemo(() => decodeURIComponent(params.qrToken ?? ""), [params.qrToken]);
   const [isTransitionPending, startTransition] = useTransition();
 
@@ -73,16 +74,25 @@ export default function TableByQrPage() {
   const showLoading = (isMenuLoading || isBillLoading) && !menuData;
 
   return (
-    <main className="ambient-shell min-h-screen px-4 pb-6 pt-7 md:px-8 md:py-10">
+    <main
+      className="ambient-shell min-h-screen px-4 pb-6 pt-[calc(1.75rem+env(safe-area-inset-top))] md:px-8 md:py-10"
+      id="main"
+    >
+      <a
+        className="sr-only focus:not-sr-only focus-visible:rounded-lg focus-visible:bg-white/80 focus-visible:px-3 focus-visible:py-2"
+        href="#main"
+      >
+        Saltar al contenido
+      </a>
       <section className="glass-panel mx-auto max-w-5xl rounded-3xl p-4 md:p-8">
-        <button
-          className="mb-4 text-sm font-semibold text-[var(--accent-jade)] hover:opacity-80"
-          onClick={() => router.push("/")}
+        <Link
+          className="mb-4 inline-flex text-sm font-semibold text-[var(--accent-jade)] hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-jade)] focus-visible:ring-offset-2"
+          href="/"
         >
           Regresar al inicio
-        </button>
+        </Link>
 
-        {showLoading && <p className="text-[var(--ink-700)]">Cargando mesa virtual...</p>}
+        {showLoading && <p className="text-[var(--ink-700)]">Cargando mesa virtual…</p>}
         {isMenuErrored && <p className="font-semibold text-[var(--accent-red)]">Error: {menuErrorMessage}</p>}
 
         {menuData && (
@@ -121,7 +131,7 @@ function TableByQrContent({
   return (
     <>
       <p className="section-label">Mesa virtual colaborativa</p>
-      <h1 className="mt-2 text-3xl leading-tight text-[var(--ink-950)] md:text-4xl">
+      <h1 className="mt-2 text-3xl leading-tight text-[var(--ink-950)] text-balance md:text-4xl">
         {menuData.restaurant.name}
       </h1>
       <p className="mt-1 text-[var(--ink-700)]">Mesa {menuData.table.number}</p>
@@ -136,7 +146,7 @@ function TableByQrContent({
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
         <div className="space-y-4">
-          <h2 className="text-3xl text-[var(--ink-950)]">Menu</h2>
+          <h2 className="text-3xl text-[var(--ink-950)] text-balance">Menu</h2>
           <MenuSelectionRoot
             menu={menuData.menu}
             qrToken={qrToken}
@@ -150,7 +160,7 @@ function TableByQrContent({
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-3xl text-[var(--ink-950)]">Cuenta compartida</h2>
+          <h2 className="text-3xl text-[var(--ink-950)] text-balance">Cuenta compartida</h2>
           <SharedBillRoot
             bill={billData || null}
             memberId={memberId}
@@ -164,6 +174,8 @@ function TableByQrContent({
               <SharedBillItems />
               <SharedBillSelectMine />
             </div>
+
+            <TableAdmin qrToken={qrToken} />
 
             <CheckoutRoot qrToken={qrToken} onSuccess={refreshBill}>
               <CheckoutCard>

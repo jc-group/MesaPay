@@ -36,13 +36,14 @@ echo "[OK] /api/v1/public/tables/mesa-12-demo/checkout -> ${checkout_response}"
 
 order_id="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["order"]["id"])' "${checkout_response}")"
 
-refund_response="$(curl -fsS -X POST "${BASE_BACKEND_URL}/api/v1/public/tables/mesa-12-demo/refund" -H "Content-Type: application/json" -d "{\"orderId\":${order_id}}")"
-echo "[OK] /api/v1/public/tables/mesa-12-demo/refund -> ${refund_response}"
+if [ -n "${MESAPAY_ADMIN_JWT:-}" ]; then
+  refund_response="$(curl -fsS -X POST "${BASE_BACKEND_URL}/api/v1/public/tables/mesa-12-demo/refund" -H "Content-Type: application/json" -H "Authorization: Bearer ${MESAPAY_ADMIN_JWT}" -d "{\"orderId\":${order_id}}")"
+  echo "[OK] /api/v1/public/tables/mesa-12-demo/refund -> ${refund_response}"
 
-refunded_ids="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["refundedLineItems"])' "${refund_response}")"
-bill_after_refund_response="$(curl -fsS "${BASE_BACKEND_URL}/api/v1/public/tables/mesa-12-demo/bill")"
+  refunded_ids="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["refundedLineItems"])' "${refund_response}")"
+  bill_after_refund_response="$(curl -fsS "${BASE_BACKEND_URL}/api/v1/public/tables/mesa-12-demo/bill")"
 
-python3 - "${refunded_ids}" "${bill_after_refund_response}" <<'PY'
+  python3 - "${refunded_ids}" "${bill_after_refund_response}" <<'PY'
 import json
 import sys
 
@@ -61,6 +62,9 @@ for line_id in refunded:
 
 print("[OK] Refunded line items marked unpaid")
 PY
+else
+  echo "[SKIP] Refund flow (MESAPAY_ADMIN_JWT not set)"
+fi
 
 frontend_status="$(curl -sS -o /tmp/mesapay_smoke_home.html -w "%{http_code}" "${BASE_FRONTEND_URL}")"
 if [ "${frontend_status}" != "200" ]; then

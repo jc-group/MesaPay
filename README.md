@@ -110,6 +110,17 @@ Estrategia de cache PWA:
 - API publica: network-first con cache de respaldo
 - Assets estaticos: stale-while-revalidate
 
+Social login (Supabase):
+
+- Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- Habilita Google y Apple en Supabase Auth
+- Redirect URL: `http://localhost:3000/auth/callback`
+
+Backend guardian:
+
+- Configura `SUPABASE_URL` y `SUPABASE_JWT_AUD=authenticated`
+- El backend valida JWT de Supabase para acciones admin (reembolsos, cerrar mesa)
+
 ## Backend (MesaPayClient)
 
 Scripts:
@@ -127,6 +138,7 @@ Endpoints publicos clave:
 - `POST /api/v1/public/tables/{qr_token}/items`
 - `POST /api/v1/public/tables/{qr_token}/checkout`
 - `POST /api/v1/public/tables/{qr_token}/refund`
+- `POST /api/v1/public/tables/{qr_token}/close`
 
 ## Notas
 
